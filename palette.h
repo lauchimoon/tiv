@@ -12,6 +12,8 @@ typedef struct RGBA {
 
 #define RESET_COLOR "\x1b[48;5;0m"
 
+// With help of
+// https://github.com/fidian/ansi/blob/master/images/color-codes.png
 RGBA colors[NUM_COLORS] = {
     (RGBA){46,52,54,255}, (RGBA){204,0,0,255}, (RGBA){78,154,6,255}, (RGBA){196,160,0,255}, (RGBA){52,101,164,255},
     (RGBA){117,80,123,255}, (RGBA){6,152,154,255}, (RGBA){211,215,207,255}, (RGBA){85,87,83,255}, (RGBA){239,41,41,255},
