@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "palette.h"
 #ifdef __TINYC__
     #define STBI_NO_SIMD
@@ -17,10 +18,16 @@ typedef struct Image {
 
 Image load_image(const char *);
 RGBA get_pixel_color(Image, int, int);
-int are_colors_similar(RGBA, RGBA);
 RGBA get_most_similar_color(RGBA);
+double distance(RGBA, RGBA);
+int sqr_difference(int, int);
+int min_index(double *, int);
 const char *map_color_to_ansi(RGBA);
 int colors_equal(RGBA, RGBA);
+
+void printcolor(RGBA c) {
+    printf("(%d,%d,%d,%d)\n", c.r, c.g, c.b, c.a);
+}
 
 int main(int argc, const char **argv)
 {
@@ -35,7 +42,8 @@ int main(int argc, const char **argv)
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
             RGBA color = get_pixel_color(image, x, y);
-            printf("%s█\x1b[0m", map_color_to_ansi(color));
+            RGBA quantized_color = get_most_similar_color(color);
+            printf("%s█\x1b[0m", map_color_to_ansi(quantized_color));
         }
         printf("\n");
     }
@@ -66,14 +74,49 @@ RGBA get_pixel_color(Image image, int x, int y)
     return rgba;
 }
 
-int are_colors_similar(RGBA rgba1, RGBA rgba2)
-{
-    assert(0 && "TODO: not implemented");
-}
-
 RGBA get_most_similar_color(RGBA rgba)
 {
-    assert(0 && "TODO: not implemented");
+    RGBA colors[NUM_COLORS] = {
+        COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
+        COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE,
+    };
+    double color_differences[NUM_COLORS] = { 0.0 };
+
+    for (int i = 0; i < NUM_COLORS; ++i) {
+        RGBA color = colors[i];
+        color_differences[i] = distance(rgba, color);
+    }
+
+    int most_similar_index = min_index(color_differences, NUM_COLORS);
+    return colors[most_similar_index];
+}
+
+double distance(RGBA rgba1, RGBA rgba2)
+{
+    return sqrt(
+        sqr_difference(rgba1.r, rgba2.r) +
+        sqr_difference(rgba1.g, rgba2.g) +
+        sqr_difference(rgba1.b, rgba2.b));
+}
+
+int sqr_difference(int x, int y)
+{
+    int diff = x - y;
+    return diff*diff;
+}
+
+int min_index(double *array, int array_len)
+{
+    double min = 500.0;
+    int index = 0;
+    for (int i = 0; i < array_len; ++i) {
+        if (min > array[i]) {
+            min = array[i];
+            index = i;
+        }
+    }
+
+    return index;
 }
 
 const char *map_color_to_ansi(RGBA rgba)
@@ -86,6 +129,7 @@ const char *map_color_to_ansi(RGBA rgba)
     else if (colors_equal(rgba, COLOR_MAGENTA)) return "\x1b[35m";
     else if (colors_equal(rgba, COLOR_CYAN)) return "\x1b[36m";
     else if (colors_equal(rgba, COLOR_WHITE)) return "\x1b[37m";
+    else return "?";
 }
 
 int colors_equal(RGBA rgba1, RGBA rgba2)
