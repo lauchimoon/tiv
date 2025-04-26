@@ -23,11 +23,8 @@ double distance(RGBA, RGBA);
 int sqr_difference(int, int);
 int min_index(double *, int);
 const char *map_color_to_ansi(RGBA);
+int find_equal_color_index(RGBA);
 int colors_equal(RGBA, RGBA);
-
-void printcolor(RGBA c) {
-    printf("(%d,%d,%d,%d)\n", c.r, c.g, c.b, c.a);
-}
 
 int main(int argc, const char **argv)
 {
@@ -42,8 +39,7 @@ int main(int argc, const char **argv)
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
             RGBA color = get_pixel_color(image, x, y);
-            //RGBA quantized_color = get_most_similar_color(color);
-            printf("%s \x1b[48;5;0m", map_color_to_ansi(color));
+            printf("%s %s", map_color_to_ansi(color), RESET_COLOR);
         }
         printf("\n");
     }
@@ -76,10 +72,6 @@ RGBA get_pixel_color(Image image, int x, int y)
 
 RGBA get_most_similar_color(RGBA rgba)
 {
-    RGBA colors[NUM_COLORS] = {
-        COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
-        COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE,
-    };
     double color_differences[NUM_COLORS] = { 0.0 };
 
     for (int i = 0; i < NUM_COLORS; ++i) {
@@ -121,15 +113,20 @@ int min_index(double *array, int array_len)
 
 const char *map_color_to_ansi(RGBA rgba)
 {
-    if (colors_equal(rgba, COLOR_BLACK)) return "\x1b[48;5;16m";
-    else if (colors_equal(rgba, COLOR_RED)) return "\x1b[48;5;196m";
-    else if (colors_equal(rgba, COLOR_GREEN)) return "\x1b[48;5;40m";
-    else if (colors_equal(rgba, COLOR_YELLOW)) return "\x1b[48;5;220m";
-    else if (colors_equal(rgba, COLOR_BLUE)) return "\x1b[48;5;21m";
-    else if (colors_equal(rgba, COLOR_MAGENTA)) return "\x1b[48;5;200m";
-    else if (colors_equal(rgba, COLOR_CYAN)) return "\x1b[48;5;45m";
-    else if (colors_equal(rgba, COLOR_WHITE)) return "\x1b[48;5;255m";
-    else return "?";
+    int index = find_equal_color_index(rgba);
+    if (index == -1)
+        return "?";
+
+    return color_codes[index];
+}
+
+int find_equal_color_index(RGBA rgba)
+{
+    for (int i = 0; i < NUM_COLORS; ++i)
+        if (colors_equal(rgba, colors[i]))
+            return i;
+
+    return -1;
 }
 
 int colors_equal(RGBA rgba1, RGBA rgba2)
