@@ -18,11 +18,12 @@ typedef struct Image {
 
 Image load_image(const char *);
 RGBA get_pixel_color(Image, int, int);
+void display(RGBA);
 RGBA get_most_similar_color(RGBA);
 double distance(RGBA, RGBA);
 int sqr_difference(int, int);
 int min_index(double *, int);
-const char *map_color_to_ansi(RGBA);
+char *map_color_to_ansi(RGBA);
 int find_equal_color_index(RGBA);
 int colors_equal(RGBA, RGBA);
 
@@ -36,10 +37,11 @@ int main(int argc, const char **argv)
     const char *filename = argv[1];
     Image image = load_image(filename);
 
+
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
             RGBA color = get_pixel_color(image, x, y);
-            printf("%s %s", map_color_to_ansi(color), RESET_COLOR);
+            display(color);
         }
         printf("\n");
     }
@@ -68,6 +70,13 @@ RGBA get_pixel_color(Image image, int x, int y)
     rgba.a = image.data[index + 3];
 
     return rgba;
+}
+
+void display(RGBA rgba)
+{
+    char *ansi_code = map_color_to_ansi(rgba);
+    printf("%s %s", ansi_code, RESET_COLOR);
+    free(ansi_code);
 }
 
 RGBA get_most_similar_color(RGBA rgba)
@@ -111,13 +120,16 @@ int min_index(double *array, int array_len)
     return index;
 }
 
-const char *map_color_to_ansi(RGBA rgba)
+char *map_color_to_ansi(RGBA rgba)
 {
     int index = find_equal_color_index(rgba);
     if (index == -1)
         return "?";
 
-    return color_codes[index];
+#define ANSI_CODE_SIZE 256
+    char *ansi_code = malloc(ANSI_CODE_SIZE + 1);
+    sprintf(ansi_code, "\x1b[48;5;%dm", index);
+    return ansi_code;
 }
 
 int find_equal_color_index(RGBA rgba)
