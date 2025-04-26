@@ -41,7 +41,8 @@ int main(int argc, const char **argv)
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
             RGBA color = get_pixel_color(image, x, y);
-            display(color);
+            RGBA quantized_color = get_most_similar_color(color);
+            display(quantized_color);
         }
         printf("\n");
     }
