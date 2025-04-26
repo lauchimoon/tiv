@@ -16,6 +16,7 @@ typedef struct Image {
     int height;
 } Image;
 
+int is_png(const char *);
 Image load_image(const char *);
 RGBA get_pixel_color(Image, int, int);
 void display(RGBA);
@@ -35,8 +36,12 @@ int main(int argc, const char **argv)
     }
 
     const char *filename = argv[1];
-    Image image = load_image(filename);
+    if (!is_png(filename)) {
+        printf("error: '%s' is not a PNG file.\n", filename);
+        return 2;
+    }
 
+    Image image = load_image(filename);
 
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
@@ -49,6 +54,20 @@ int main(int argc, const char **argv)
 
     free(image.data);
     return 0;
+}
+
+int is_png(const char *filename)
+{
+    FILE *f = fopen(filename, "r");
+    if (!f)
+        return 1;
+
+    char signature[4] = { 0 };
+    fread(signature, sizeof(char), 4, f);
+    fclose(f);
+
+    return signature[0] == 0xffffff89 && signature[1] == 0x50 &&
+        signature[2] == 0x4e && signature[3] == 0x47;
 }
 
 Image load_image(const char *filename)
