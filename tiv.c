@@ -42,8 +42,8 @@ int main(int argc, const char **argv)
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
             RGBA color = get_pixel_color(image, x, y);
-            RGBA quantized_color = get_most_similar_color(color);
-            printf("%s█\x1b[0m", map_color_to_ansi(quantized_color));
+            //RGBA quantized_color = get_most_similar_color(color);
+            printf("%s \x1b[48;5;0m", map_color_to_ansi(color));
         }
         printf("\n");
     }
@@ -121,14 +121,14 @@ int min_index(double *array, int array_len)
 
 const char *map_color_to_ansi(RGBA rgba)
 {
-    if (colors_equal(rgba, COLOR_BLACK)) return "\x1b[30m";
-    else if (colors_equal(rgba, COLOR_RED)) return "\x1b[31m";
-    else if (colors_equal(rgba, COLOR_GREEN)) return "\x1b[32m";
-    else if (colors_equal(rgba, COLOR_YELLOW)) return "\x1b[33m";
-    else if (colors_equal(rgba, COLOR_BLUE)) return "\x1b[34m";
-    else if (colors_equal(rgba, COLOR_MAGENTA)) return "\x1b[35m";
-    else if (colors_equal(rgba, COLOR_CYAN)) return "\x1b[36m";
-    else if (colors_equal(rgba, COLOR_WHITE)) return "\x1b[37m";
+    if (colors_equal(rgba, COLOR_BLACK)) return "\x1b[48;5;16m";
+    else if (colors_equal(rgba, COLOR_RED)) return "\x1b[48;5;196m";
+    else if (colors_equal(rgba, COLOR_GREEN)) return "\x1b[48;5;40m";
+    else if (colors_equal(rgba, COLOR_YELLOW)) return "\x1b[48;5;220m";
+    else if (colors_equal(rgba, COLOR_BLUE)) return "\x1b[48;5;21m";
+    else if (colors_equal(rgba, COLOR_MAGENTA)) return "\x1b[48;5;200m";
+    else if (colors_equal(rgba, COLOR_CYAN)) return "\x1b[48;5;45m";
+    else if (colors_equal(rgba, COLOR_WHITE)) return "\x1b[48;5;255m";
     else return "?";
 }
 
