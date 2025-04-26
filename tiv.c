@@ -31,7 +31,7 @@ int colors_equal(RGBA, RGBA);
 int main(int argc, const char **argv)
 {
     if (argc < 2) {
-        printf("usage: %s <image-file>\n", PROGRAM_NAME);
+        printf("usage: %s <png-file>\n", PROGRAM_NAME);
         return 1;
     }
 
