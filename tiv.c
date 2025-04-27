@@ -102,7 +102,9 @@ void display(RGBA rgba)
 RGBA get_most_similar_color(RGBA rgba)
 {
     if (rgba.a == 0)
-         // same color as terminal: emulate fully transparent pixel
+        // same color as terminal: emulate fully transparent pixel
+        // NOTE: this assumes that terminal background color is black.
+        //       any possible solution?
         return colors[0];
 
     double color_differences[NUM_COLORS] = { 0.0 };
