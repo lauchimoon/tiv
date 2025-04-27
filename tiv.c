@@ -8,6 +8,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb_image_resize2.h"
+
 #define PROGRAM_NAME "tiv"
 
 typedef struct Image {
@@ -18,6 +21,8 @@ typedef struct Image {
 
 int is_png(const char *);
 Image load_image(const char *);
+int wanted_size(Image);
+Image resize_image(Image);
 RGBA get_pixel_color(Image, int, int);
 void display(RGBA);
 RGBA get_most_similar_color(RGBA);
@@ -42,6 +47,10 @@ int main(int argc, const char **argv)
     }
 
     Image image = load_image(filename);
+
+    // adjust image so that it can fit on the terminal
+    if (!wanted_size(image))
+        image = resize_image(image);
 
     for (int y = 0; y < image.height; ++y) {
         for (int x = 0; x < image.width; ++x) {
@@ -75,6 +84,28 @@ Image load_image(const char *filename)
     Image image = { 0 };
 
     image.data = stbi_load(filename, &image.width, &image.height, NULL, 0);
+
+    return image;
+}
+
+int wanted_size(Image image)
+{
+    return 0 <= image.width && image.width <= 80 &&
+           0 <= image.height && image.height <= 24;
+}
+
+Image resize_image(Image image)
+{
+    int target_width = 80;
+    int target_height = 24;
+
+    unsigned char *pixels = stbir_resize_uint8_linear(image.data, image.width,
+                            image.height, 0, NULL, target_width, target_height, 0, (stbir_pixel_layout)4);
+
+    free(image.data);
+    image.data = pixels;
+    image.width = target_width;
+    image.height = target_height;
 
     return image;
 }
