@@ -101,6 +101,10 @@ void display(RGBA rgba)
 
 RGBA get_most_similar_color(RGBA rgba)
 {
+    if (rgba.a == 0)
+         // same color as terminal: emulate fully transparent pixel
+        return colors[0];
+
     double color_differences[NUM_COLORS] = { 0.0 };
 
     for (int i = 0; i < NUM_COLORS; ++i) {
@@ -117,7 +121,8 @@ double distance(RGBA rgba1, RGBA rgba2)
     return sqrt(
         sqr_difference(rgba1.r, rgba2.r) +
         sqr_difference(rgba1.g, rgba2.g) +
-        sqr_difference(rgba1.b, rgba2.b));
+        sqr_difference(rgba1.b, rgba2.b) +
+        sqr_difference(rgba1.a, rgba2.a));
 }
 
 int sqr_difference(int x, int y)
